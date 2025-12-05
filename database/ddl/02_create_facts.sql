@@ -2,7 +2,7 @@
 -- Schema for core fact tables
 
 CREATE SCHEMA IF NOT EXISTS analytics;
-SET search_path TO analytics;
+SET search_path TO analytics, public;
 
 -- =========================
 -- FactSales (invoice line grain)
