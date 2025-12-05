@@ -331,25 +331,31 @@ def seed_fact_sales_target(cur, month_first_keys, region_ids, salesrep_ids, prod
     print(f"  Inserted {len(rows)} FactSalesTarget rows.")
 
 
-def seed_fact_orders(cur, date_keys, customer_ids, product_ids, region_ids, wh_ids):
+def seed_fact_orders(cur, date_rows, customer_ids, product_ids, region_ids, wh_ids):
     print("Seeding FactOrders...")
     rows = []
+
     for _ in range(2500):
         order_no = f"SO{random.randint(100000, 999999)}"
         line_no = random.randint(1, 5)
-        order_date = random.choice(date_keys)
+
+        # 随机选一行 DimDate：既拿到 key，也拿到真正的 date
+        order_date_key, order_date = random.choice(date_rows)
+
         cust = random.choice(customer_ids)
         prod = random.choice(product_ids)
         region = random.choice(region_ids)
         wh = random.choice(wh_ids)
         ordered_qty = round(random.uniform(1, 80), 2)
 
+        # 这里用真正的 date 做加减
         req_offset = random.randint(1, 20)
         prom_delay = random.randint(0, 5)
         ship_delay = random.randint(-2, 7)
-        requested_date = order_date + req_offset
-        promised_date = requested_date + prom_delay
-        actual_ship = promised_date + ship_delay
+
+        requested_date = order_date + timedelta(days=req_offset)
+        promised_date = requested_date + timedelta(days=prom_delay)
+        actual_ship = promised_date + timedelta(days=ship_delay)
 
         shipped_qty = max(0, round(ordered_qty - random.uniform(0, 10), 2))
         cancelled_qty = max(0, round(ordered_qty - shipped_qty, 2))
@@ -360,13 +366,13 @@ def seed_fact_orders(cur, date_keys, customer_ids, product_ids, region_ids, wh_i
             (
                 order_no,
                 line_no,
-                order_date,
+                order_date_key,   # 还是 int key
                 cust,
                 prod,
                 region,
                 wh,
                 ordered_qty,
-                requested_date,
+                requested_date,   # 下面三个都是 date 对象
                 promised_date,
                 actual_ship,
                 shipped_qty,
@@ -384,7 +390,7 @@ def seed_fact_orders(cur, date_keys, customer_ids, product_ids, region_ids, wh_i
          orderedqty, requesteddeliverydate, promiseddeliverydate,
          actualshipdate, shippedqty, cancelledqty,
          isontime, isinfull)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,to_date(%s::text, 'YYYYMMDD'),to_date(%s::text, 'YYYYMMDD'),to_date(%s::text, 'YYYYMMDD'),%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """,
         rows,
     )
@@ -556,7 +562,7 @@ def main():
         reset_facts(cur)
         seed_fact_sales(cur, date_keys, customer_ids, product_ids, region_ids, salesrep_ids, wh_ids)
         seed_fact_sales_target(cur, month_first_keys, region_ids, salesrep_ids, product_ids)
-        seed_fact_orders(cur, date_keys, customer_ids, product_ids, region_ids, wh_ids)
+        seed_fact_orders(cur, date_rows, customer_ids, product_ids, region_ids, wh_ids)
         seed_fact_inventory(cur, date_keys, product_ids, wh_ids)
         seed_fact_production(cur, date_keys, product_ids, wh_ids)
         seed_fact_finance(cur, month_first_keys, pl_ids, bs_ids, cf_ids, region_ids)
