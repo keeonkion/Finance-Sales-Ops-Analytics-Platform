@@ -103,20 +103,33 @@ def load_fact_table(cur, table_name: str):
     if not csv_path.exists():
         raise FileNotFoundError(f"CSV not found for fact table: {csv_path}")
 
-    with csv_path.open("r", encoding="utf-8") as f:
+    # 🔥 预处理 CSV：把 regionkey = "2.0" → "2"，把 "nan" → ""
+    import pandas as pd
+    df = pd.read_csv(csv_path)
+
+    if "regionkey" in df.columns:
+        df["regionkey"] = df["regionkey"].apply(
+            lambda x: int(float(x)) if str(x).replace('.', '', 1).isdigit() else None
+        )
+
+    # 写回临时文件
+    tmp_path = csv_path.with_suffix(".clean.csv")
+    df.to_csv(tmp_path, index=False)
+
+    # 重新读取行数
+    with tmp_path.open("r", encoding="utf-8") as f:
         line_count = sum(1 for _ in f)
     rows = max(0, line_count - 1)
 
     columns = FACT_COLUMN_MAP[table_name]
     col_list_sql = ", ".join(columns)
 
-    print(f"➡ Loading FACT {table_name} from {csv_path} ({rows} rows)...")
+    print(f"➡ Loading FACT {table_name} from {tmp_path} ({rows} rows)...")
 
-    with csv_path.open("r", encoding="utf-8") as f:
+    with tmp_path.open("r", encoding="utf-8") as f:
         copy_sql = f"""
             COPY {SCHEMA}.{table_name} ({col_list_sql})
-            FROM STDIN
-            WITH (FORMAT csv, HEADER true)
+            FROM STDIN WITH (FORMAT csv, HEADER true)
         """
         cur.copy_expert(copy_sql, f)
 
