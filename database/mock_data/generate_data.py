@@ -4,7 +4,7 @@ import random
 from datetime import date, timedelta
 import psycopg2
 
-CONN_STR = "psql 'postgresql://neondb_owner:npg_35XuDGUeAfHV@ep-empty-sky-a9a996ke-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require'"  # e.g. postgresql://neondb_owner:xxx@ep-xxx.neon.tech/neondb?sslmode=require&channel_binding=require
+CONN_STR = "postgresql://neondb_owner:npg_35XuDGUeAfHV@ep-empty-sky-a9a996ke-pooler.gwc.azure.neon.tech/neondb?sslmode=require&channel_binding=require"  # e.g. postgresql://neondb_owner:xxx@ep-xxx.neon.tech/neondb?sslmode=require&channel_binding=require
 
 SCHEMA = "analytics"
 
