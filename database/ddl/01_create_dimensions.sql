@@ -2,7 +2,7 @@
 -- Schema for shared dimension tables
 
 CREATE SCHEMA IF NOT EXISTS analytics;
-SET search_path TO analytics;
+SET search_path TO analytics, public;
 
 -- =========================
 -- DimDate
