@@ -1,0 +1,5 @@
+regionkey,countrycode,countryname,regionname,cityname
+1,FR,France,Europe,Nice
+2,DE,Germany,Europe,Munich
+3,SG,Singapore,APAC,Singapore
+4,US,United States,North America,New York

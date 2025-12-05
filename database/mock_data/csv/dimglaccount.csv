@@ -1,0 +1,10 @@
+glaccountkey,glaccountcode,glaccountname,statementtype,category,subcategory
+1,4000,Product Revenue,PL,Revenue,Sales
+2,5000,Cost of Goods Sold,PL,COGS,COGS
+3,6100,Operating Expenses,PL,OPEX,OPEX
+4,1000,Cash and Bank,BS,Assets,Cash
+5,2000,Trade Payables,BS,Liabilities,Payables
+6,3000,Share Capital,BS,Equity,Equity
+7,7000,Operating Cash Flow,CF,Operating,CFO
+8,7100,Investing Cash Flow,CF,Investing,CFI
+9,7200,Financing Cash Flow,CF,Financing,CFF

@@ -1,0 +1,15 @@
+salesrepkey,employeecode,fullname,regionkey,email,isactive
+1,SR001,Sales Rep 001,4,sales001@example.com,True
+2,SR002,Sales Rep 002,1,sales002@example.com,True
+3,SR003,Sales Rep 003,1,sales003@example.com,True
+4,SR004,Sales Rep 004,1,sales004@example.com,True
+5,SR005,Sales Rep 005,1,sales005@example.com,True
+6,SR006,Sales Rep 006,2,sales006@example.com,True
+7,SR007,Sales Rep 007,2,sales007@example.com,True
+8,SR008,Sales Rep 008,4,sales008@example.com,True
+9,SR009,Sales Rep 009,4,sales009@example.com,True
+10,SR010,Sales Rep 010,4,sales010@example.com,True
+11,SR011,Sales Rep 011,2,sales011@example.com,True
+12,SR012,Sales Rep 012,4,sales012@example.com,True
+13,SR013,Sales Rep 013,1,sales013@example.com,True
+14,SR014,Sales Rep 014,2,sales014@example.com,True

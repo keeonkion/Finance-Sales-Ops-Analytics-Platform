@@ -1,0 +1,4 @@
+warehousekey,warehousecode,warehousename,regionkey,isactive
+1,WH01,Main Warehouse 1,4,True
+2,WH02,Main Warehouse 2,2,True
+3,WH03,Main Warehouse 3,1,True
