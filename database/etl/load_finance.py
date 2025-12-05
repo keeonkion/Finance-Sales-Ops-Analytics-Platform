@@ -99,28 +99,34 @@ def load_dim_glaccount(cur):
 
 
 def load_fact_table(cur, table_name: str):
+    import pandas as pd
+
     csv_path = CSV_DIR / f"{table_name}.csv"
     if not csv_path.exists():
         raise FileNotFoundError(f"CSV not found for fact table: {csv_path}")
 
-    # 🔥 预处理 CSV：把 regionkey = "2.0" → "2"，把 "nan" → ""
-    import pandas as pd
+    # 读取原始 CSV
     df = pd.read_csv(csv_path)
 
+    # ----- 关键处理：清洗 regionkey -----
     if "regionkey" in df.columns:
-        df["regionkey"] = df["regionkey"].apply(
-            lambda x: int(float(x)) if str(x).replace('.', '', 1).isdigit() else None
-        )
+        # 把 2.0 / "2.0" / "2" 之类全部转成整数，
+        # 非法的（比如 "nan"、空格、乱七八糟字符串）都变成 NaN
+        df["regionkey"] = pd.to_numeric(df["regionkey"], errors="coerce")
 
-    # 写回临时文件
+        # 再把 2.0 -> 2，保持为整数；NaN 会保留为缺失
+        df["regionkey"] = df["regionkey"].astype("Int64")  # pandas 可空的整数类型
+
+    # 写回一个“干净版”临时文件（空值写成空字符串，COPY 会当成 NULL）
     tmp_path = csv_path.with_suffix(".clean.csv")
-    df.to_csv(tmp_path, index=False)
+    df.to_csv(tmp_path, index=False, na_rep="")
 
-    # 重新读取行数
+    # 重新计算行数（方便日志）
     with tmp_path.open("r", encoding="utf-8") as f:
         line_count = sum(1 for _ in f)
     rows = max(0, line_count - 1)
 
+    # 列顺序按我们在 FACT_COLUMN_MAP 里定义的来
     columns = FACT_COLUMN_MAP[table_name]
     col_list_sql = ", ".join(columns)
 
@@ -129,7 +135,7 @@ def load_fact_table(cur, table_name: str):
     with tmp_path.open("r", encoding="utf-8") as f:
         copy_sql = f"""
             COPY {SCHEMA}.{table_name} ({col_list_sql})
-            FROM STDIN WITH (FORMAT csv, HEADER true)
+            FROM STDIN WITH (FORMAT csv, HEADER true, NULL '')
         """
         cur.copy_expert(copy_sql, f)
 
