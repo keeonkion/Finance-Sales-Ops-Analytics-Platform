@@ -384,7 +384,7 @@ def seed_fact_orders(cur, date_keys, customer_ids, product_ids, region_ids, wh_i
          orderedqty, requesteddeliverydate, promiseddeliverydate,
          actualshipdate, shippedqty, cancelledqty,
          isontime, isinfull)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,to_date(%s::text, 'YYYYMMDD'),to_date(%s::text, 'YYYYMMDD'),to_date(%s::text, 'YYYYMMDD'),%s,%s,%s,%s)
         """,
         rows,
     )
