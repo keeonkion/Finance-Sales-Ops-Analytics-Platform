@@ -1,0 +1,39 @@
+* [33m04a9834[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Add staging models and tests for sales domain
+[31m|[m * [33m2d995b4[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Delete analytics_platform/models/example directory
+[31m|[m[31m/[m  
+* [33mf24f26a[m Add dbt project analytics_platform
+* [33mff5e61d[m delete dbt folder
+* [33m5073a57[m Create profiles.yml
+* [33m0406954[m deleted dbt file
+* [33m96396db[m Create dbt
+* [33m772647b[m Create 17a_checking_constraints_index.sql
+* [33mcb553f0[m Update 17_constraints_indexes.sql
+* [33m6f5ea12[m Create 17_constraints_indexes.sql
+* [33m0862cd4[m Create 16a_checking_dimension.sql
+* [33m900df0e[m Create 16_clean_dimensions.sql
+* [33m7daea5e[m Update load_finance.py
+* [33ma96badd[m Update load_finance.py
+* [33mbede9e1[m Create run_all.py
+* [33m64aa86d[m Create load_finance.py
+* [33md01dd7c[m Create load_operations.py
+* [33m54f6e5f[m Create load_sales.py
+* [33m936418e[m Add generated CSV mock data
+* [33mc4fb556[m Create generate_data_excel.py
+* [33m2171064[m Update generate_data.py
+* [33m16a9391[m Create 02_inventory_operations.md
+* [33mb6a20f5[m Create 01_sales_customer.md
+* [33m1c956dd[m Update generate_data.py
+* [33mf325334[m Update generate_data.py
+* [33mfb08326[m Update generate_data.py
+* [33m362be01[m Update generate_data.py
+* [33m22ad2d6[m Update generate_data.py
+* [33m855bf65[m Create 03_create_views.sql
+* [33m2f24ee0[m Update generate_data.py
+* [33mc3472a6[m Create generate_data.py
+* [33mcb5a599[m Update 02_create_facts.sql
+* [33m30ecf83[m Update 01_create_dimensions.sql
+* [33m9ddd567[m Add fact table DDL
+* [33mecd714f[m Add dimension table DDL
+* [33mc3f332e[m Add conceptual dimensional model
+* [33m8d235c1[m Add KPI list document
+* [33m09b3990[m Add business_story.md

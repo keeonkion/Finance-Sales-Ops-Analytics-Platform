@@ -1,0 +1,135 @@
+version: 2
+
+models:
+  - name: stg_date
+    description: "Cleaned date dimension"
+    columns:
+      - name: date_id
+        description: "Surrogate key from dimdate.datekey"
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        tests:
+          - not_null
+      - name: is_weekday
+        tests:
+          - not_null
+
+  - name: stg_gl_account
+    description: "GL account dimension for PL/BS/CF"
+    columns:
+      - name: gl_account_id
+        tests:
+          - not_null
+          - unique
+      - name: gl_account_code
+        tests:
+          - not_null
+      - name: statement_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['PL', 'BS', 'CF']
+
+  - name: stg_finance_pl
+    description: "Staging for Profit & Loss fact"
+    columns:
+      - name: finance_pl_id
+        tests:
+          - not_null
+          - unique
+      - name: date_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_date')
+              field: date_id
+      - name: gl_account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_gl_account')
+              field: gl_account_id
+      - name: region_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: amount
+        tests:
+          - not_null
+      - name: currency
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['EUR']
+
+  - name: stg_finance_bs
+    description: "Staging for Balance Sheet fact"
+    columns:
+      - name: finance_bs_id
+        tests:
+          - not_null
+          - unique
+      - name: date_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_date')
+              field: date_id
+      - name: gl_account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_gl_account')
+              field: gl_account_id
+      - name: region_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: balance_amount
+        tests:
+          - not_null
+      - name: currency
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['EUR']
+
+  - name: stg_finance_cf
+    description: "Staging for Cash Flow fact"
+    columns:
+      - name: finance_cf_id
+        tests:
+          - not_null
+          - unique
+      - name: date_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_date')
+              field: date_id
+      - name: gl_account_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_gl_account')
+              field: gl_account_id
+      - name: region_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: cash_flow_amount
+        tests:
+          - not_null
+      - name: currency
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['EUR']

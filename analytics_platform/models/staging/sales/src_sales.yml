@@ -2,8 +2,55 @@ version: 2
 
 sources:
   - name: analytics
-    schema: analytics   # 你在 Neon 里看到的 schema 名称
+    description: "PostgreSQL analytics schema for Finance / Sales / Ops mock data"
+    schema: analytics
+
     tables:
       - name: dimcustomer
+        description: "Customer dimension"
+
       - name: dimproduct
+        description: "Product dimension"
+
       - name: factsales
+        description: "Sales fact table"
+
+      # ---- 新增的维度表 ----
+      - name: dimdate
+        description: "Date dimension"
+
+      - name: dimglaccount
+        description: "GL Account dimension for finance statements"
+
+      - name: dimregion
+        description: "Region / country / city dimension"
+
+      - name: dimsalesrep
+        description: "Sales representative dimension"
+
+      - name: dimwarehouse
+        description: "Warehouse / plant dimension"
+
+      # ---- 新增的财务事实表 ----
+      - name: factfinancepl
+        description: "Profit & Loss mock data"
+
+      - name: factfinancebs
+        description: "Balance Sheet mock data"
+
+      - name: factfinancecf
+        description: "Cash Flow mock data"
+
+      # ---- 新增的运营事实表 ----
+      - name: factinventory
+        description: "Inventory balances and provision"
+
+      - name: factproduction
+        description: "Production output / scrap / machine hours"
+
+      # ---- 新增的订单 / 目标表 ----
+      - name: factsalestarget
+        description: "Sales target by region / rep / product"
+
+      - name: factorders
+        description: "Sales orders with delivery performance flags"

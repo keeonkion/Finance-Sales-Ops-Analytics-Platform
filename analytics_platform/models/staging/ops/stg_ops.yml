@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: stg_region
+    description: "Region / country / city dimension"
+    columns:
+      - name: region_id
+        tests:
+          - not_null
+          - unique
+      - name: country_code
+        tests:
+          - not_null
+
+  - name: stg_warehouse
+    description: "Warehouse dimension"
+    columns:
+      - name: warehouse_id
+        tests:
+          - not_null
+          - unique
+      - name: region_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: is_active
+        tests:
+          - not_null
+
+  - name: stg_inventory
+    description: "Inventory balances and provisions"
+    columns:
+      - name: inventory_id
+        tests:
+          - not_null
+          - unique
+      - name: date_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_date')
+              field: date_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_product')
+              field: product_id
+      - name: warehouse_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_warehouse')
+              field: warehouse_id
+
+  - name: stg_production
+    description: "Production output and machine metrics"
+    columns:
+      - name: production_id
+        tests:
+          - not_null
+          - unique
+      - name: date_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_date')
+              field: date_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_product')
+              field: product_id
+      - name: warehouse_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_warehouse')
+              field: warehouse_id
