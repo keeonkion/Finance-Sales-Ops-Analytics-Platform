@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: analytics
+    schema: analytics   # 你在 Neon 里看到的 schema 名称
+    tables:
+      - name: dimcustomer
+      - name: dimproduct
+      - name: factsales

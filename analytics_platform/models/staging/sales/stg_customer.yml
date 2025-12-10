@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: stg_customer
+    description: "Clean customer master data from dimcustomer table"
+    columns:
+      - name: customer_id
+        description: "Primary key of the customer"
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_code
+        description: "External customer reference code"
+
+      - name: customer_name
+        description: "Full display name of the customer"
+
+      - name: segment
+        description: "Customer channel category, e.g. Retail, Distributor, Online"
+        tests:
+          - accepted_values:
+              values: ['Retail', 'Distributor', 'Online']
+
+      - name: region
+        description: "Geographical region of the customer"
+
+      - name: country
+        description: "Registered country"
+
+      - name: tier
+        description: "Customer tier used for priority classification"
+
+      - name: model_type
+        description: "Customer type, B2B vs B2C"
+        tests:
+          - accepted_values:
+              values: ['B2B', 'B2C']
+
+      - name: active
+        description: "Whether the customer is active"
+        tests:
+          - not_null

@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_product
+    description: "Staging view for product dimension (dimproduct)"
+    columns:
+      - name: product_id
+        description: "Surrogate key from dimproduct.productkey"
+        tests:
+          - not_null
+          - unique
+
+      - name: product_code
+        description: "Business code of the product"
+        tests:
+          - not_null
+
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+
+      - name: brand
+        description: "Brand of the product"
+
+      - name: category
+        description: "High-level category (Food, Electronics, Beauty...)"
+
+      - name: subcategory
+        description: "Subcategory (Phone, Snack...)"
+
+      - name: uom
+        description: "Unit of measure"
+
+      - name: is_active
+        description: "Whether the product is active"
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false

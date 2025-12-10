@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: stg_sales
+    description: "Staging view for sales fact data from factsales"
+    columns:
+      - name: sales_id
+        description: "Row-level sales transaction id"
+        tests:
+          - not_null
+          - unique
+
+      - name: order_date
+        description: "Order / invoice date"
+        tests:
+          - not_null
+
+      - name: customer_id
+        description: "FK to customer dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customer')
+              field: customer_id
+
+      - name: product_id
+        description: "FK to product dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_product')
+              field: product_id
+
+      - name: region_id
+        description: "FK to region dimension (later)"
+        tests:
+          - not_null
+
+      - name: salesrep_id
+        description: "FK to sales representative dimension (later)"
+
+      - name: warehouse_id
+        description: "FK to warehouse dimension (later)"
+
+      - name: invoice_number
+        description: "Invoice number, can be repeated across lines"
+
+      - name: invoice_line_number
+        description: "Line number within invoice"
+
+      - name: quantity
+        description: "Quantity sold"
+
+      - name: list_price
+        description: "List price per unit"
+
+      - name: discount_amount
+        description: "Discount amount for the line"
+
+      - name: net_sales
+        description: "Net sales amount after discount"
+
+      - name: cogs
+        description: "Cost of goods sold"
+
+      - name: gross_margin
+        description: "Gross margin amount"
+
+      - name: currency
+        description: "Transaction currency"
+        tests:
+          - accepted_values:
+              values: ['EUR']   # 如果以后有 USD 等，再加进去
