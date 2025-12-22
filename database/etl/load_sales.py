@@ -1,97 +1,58 @@
 #!/usr/bin/env python
 """
-Task 11 - Load Sales-related CSVs into PostgreSQL (Neon).
+Task 12 - Load Inventory & Operations CSVs into PostgreSQL.
 
 Tables covered:
-  Dimensions:
-    - dimdate
-    - dimregion
-    - dimproduct
-    - dimcustomer
-    - dimwarehouse
-    - dimsalesrep
-
   Facts:
-    - factsales
-    - factsalestarget
-    - factorders
+    - factinventory
+    - factproduction
+
+Assumes Dimensions (dimdate, dimproduct, dimwarehouse, dimregion, etc.)
+have already been loaded by load_sales.py.
 """
 
 import sys
 from pathlib import Path
+from datetime import datetime
 
 import psycopg2
 
-# === Connection settings (same as generate_data.py) ===
-CONN_STR = (
-    "postgresql://neondb_owner:npg_35XuDGUeAfHV"
-    "@ep-empty-sky-a9a996ke-pooler.gwc.azure.neon.tech/neondb"
-    "?sslmode=require&channel_binding=require"
-)
+import os
+CONN_STR = os.environ["NEON_CONN_STR"]
 
 SCHEMA = "analytics"
 
-BASE_DIR = Path(__file__).resolve().parents[1]     # /database
+BASE_DIR = Path(__file__).resolve().parents[1]
 CSV_DIR = BASE_DIR / "mock_data" / "csv"
-
-DIM_TABLES = [
-    "dimdate",
-    "dimregion",
-    "dimproduct",
-    "dimcustomer",
-    "dimwarehouse",
-    "dimsalesrep",
-]
+DIM_CSV_DIR = BASE_DIR / "mock_data" / "csv"
+FACT_DAILY_ROOT = DIM_CSV_DIR / "daily"
 
 FACT_TABLES = [
-    "factsales",
-    "factsalestarget",
-    "factorders",
+    "factinventory",
+    "factproduction",
 ]
 
-# 对于有 identity 主键的事实表，需要指定列名列表（不包含 ID）
 FACT_COLUMN_MAP = {
-    "factsales": [
+    "factinventory": [
         "datekey",
-        "customerkey",
         "productkey",
-        "regionkey",
-        "salesrepkey",
         "warehousekey",
-        "invoicenumber",
-        "invoicelineno",
-        "quantity",
-        "listprice",
-        "discountamount",
-        "netsales",
-        "cogs",
-        "grossmargin",
-        "currency",
+        "openingqty",
+        "inboundqty",
+        "outboundqty",
+        "closingqty",
+        "inventoryvalue",
+        "averageagedays",
+        "provisionamount",
     ],
-    "factsalestarget": [
+    "factproduction": [
         "datekey",
-        "regionkey",
-        "salesrepkey",
         "productkey",
-        "targetrevenue",
-        "targetquantity",
-    ],
-    "factorders": [
-        "ordernumber",
-        "orderlineno",
-        "orderdatekey",
-        "customerkey",
-        "productkey",
-        "regionkey",
         "warehousekey",
-        "orderedqty",
-        "requesteddeliverydate",
-        "promiseddeliverydate",
-        "actualshipdate",
-        "shippedqty",
-        "cancelledqty",
-        "isontime",
-        "isinfull",
+        "producedqty",
+        "scrapqty",
+        "machinehours",
+        "downtimehours",
     ],
 }
 
@@ -99,15 +60,32 @@ FACT_COLUMN_MAP = {
 def get_conn():
     return psycopg2.connect(CONN_STR)
 
+def resolve_fact_dir(run_date: str | None = None) -> Path:
+    """
+    If run_date provided: use csv/daily/YYYYMMDD
+    Else: pick latest folder under csv/daily/
+    """
+    if run_date:
+        p = FACT_DAILY_ROOT / run_date
+        if not p.exists():
+            raise FileNotFoundError(f"Daily fact folder not found: {p}")
+        return p
+
+    if not FACT_DAILY_ROOT.exists():
+        raise FileNotFoundError(f"Daily root not found: {FACT_DAILY_ROOT}")
+
+    candidates = [d for d in FACT_DAILY_ROOT.iterdir() if d.is_dir() and d.name.isdigit()]
+    if not candidates:
+        raise FileNotFoundError(f"No daily partitions found under: {FACT_DAILY_ROOT}")
+
+    latest = sorted(candidates, key=lambda x: x.name)[-1]
+    return latest
+
+
 
 def truncate_tables(cur):
-    """
-    先清 FAct 再清 Dim，RESTART IDENTITY 保证主键从 1 开始。
-    """
-    # 事实表在前，维度在后（有 CASCADE，其实顺序也不太关键）
-    all_tables = FACT_TABLES + DIM_TABLES
-    table_list = ", ".join(f"{SCHEMA}.{t}" for t in all_tables)
-    print(f"🧹 Truncating Sales-related tables:\n  {table_list}")
+    table_list = ", ".join(f"{SCHEMA}.{t}" for t in FACT_TABLES)
+    print(f"🧹 Truncating Operations fact tables:\n  {table_list}")
     cur.execute(
         f"""
         TRUNCATE {table_list}
@@ -116,28 +94,7 @@ def truncate_tables(cur):
     )
 
 
-def load_dim_table(cur, table_name: str):
-    csv_path = CSV_DIR / f"{table_name}.csv"
-    if not csv_path.exists():
-        raise FileNotFoundError(f"CSV not found for dim table: {csv_path}")
-
-    with csv_path.open("r", encoding="utf-8") as f:
-        line_count = sum(1 for _ in f)
-    rows = max(0, line_count - 1)
-    print(f"➡ Loading DIM {table_name} from {csv_path} ({rows} rows)...")
-
-    with csv_path.open("r", encoding="utf-8") as f:
-        copy_sql = f"""
-            COPY {SCHEMA}.{table_name}
-            FROM STDIN
-            WITH (FORMAT csv, HEADER true)
-        """
-        cur.copy_expert(copy_sql, f)
-
-    print(f"   ✔ DIM {table_name} loaded.")
-
-
-def load_fact_table(cur, table_name: str):
+def load_fact_table(cur, table_name: str, csv_path: Path):
     csv_path = CSV_DIR / f"{table_name}.csv"
     if not csv_path.exists():
         raise FileNotFoundError(f"CSV not found for fact table: {csv_path}")
@@ -163,29 +120,29 @@ def load_fact_table(cur, table_name: str):
 
 
 def main():
-    print("🔌 Connecting to PostgreSQL for Sales ETL...")
+    run_date = sys.argv[1] if len(sys.argv) > 1 else None
+    fact_dir = resolve_fact_dir(run_date)
+
+    print("🔌 Connecting to PostgreSQL for Operations ETL...")
+    print(f"📁 FACT dir : {fact_dir}")
+    
     conn = get_conn()
     conn.autocommit = False
 
     try:
         cur = conn.cursor()
-
         truncate_tables(cur)
 
-        # 先加载维度
-        for t in DIM_TABLES:
-            load_dim_table(cur, t)
-
-        # 再加载事实
         for t in FACT_TABLES:
-            load_fact_table(cur, t)
+            csv_path = fact_dir / f"{t}.csv"
+            load_fact_table(cur, t, csv_path)
 
         conn.commit()
-        print("✅ Sales ETL completed successfully.")
+        print("✅ Operations ETL completed successfully.")
 
     except Exception as ex:
         conn.rollback()
-        print("❌ Error during Sales ETL. Transaction rolled back.", file=sys.stderr)
+        print("❌ Error during Operations ETL. Transaction rolled back.", file=sys.stderr)
         print(ex, file=sys.stderr)
         raise
     finally:

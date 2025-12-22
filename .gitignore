@@ -1,0 +1,6 @@
+# logs
+logs/
+*.log
+
+# generated mock data
+database/mock_data/csv/daily/

@@ -1,5 +1,5 @@
 # database/mock_data/generate_data_excel.py
-
+import argparse
 import random
 from datetime import date, timedelta
 from pathlib import Path
@@ -12,18 +12,17 @@ random.seed(42)
 
 # Output folder: database/mock_data/csv/
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = BASE_DIR / "csv"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+DEFAULT_OUTPUT_DIR = BASE_DIR / "csv"
 
 
 # -------------------------------------------------------------------
 # Helper: save DataFrame as CSV with a small log message
 # -------------------------------------------------------------------
-def save_csv(df: pd.DataFrame, name: str) -> None:
-    path = OUTPUT_DIR / f"{name}.csv"
+def save_csv(df: pd.DataFrame, name: str, output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"{name}.csv"
     df.to_csv(path, index=False)
     print(f"Saved {name}.csv with {len(df):,} rows -> {path}")
-
 
 # -------------------------------------------------------------------
 # DimDate
@@ -463,6 +462,12 @@ def make_fact_finance(month_first_keys, pl_ids, bs_ids, cf_ids, region_keys):
         pd.DataFrame(cf_rows),
     )
 
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--ds", type=str, default=None, help="YYYY-MM-DD, e.g. 2025-12-20")
+    p.add_argument("--out-dir", type=str, default=str(DEFAULT_OUTPUT_DIR), help="Base output dir")
+    p.add_argument("--daily", action="store_true", help="Write into out-dir/daily/YYYYMMDD/")
+    return p.parse_args()
 
 # -------------------------------------------------------------------
 # Main
@@ -470,6 +475,17 @@ def make_fact_finance(month_first_keys, pl_ids, bs_ids, cf_ids, region_keys):
 def main():
     print("Generating mock CSV data (no database)…")
 
+    # ---- 日期（用于 daily facts）----
+    today = date.today()
+    ds_key = today.strftime("%Y%m%d")
+
+    # ---- 输出目录 ----
+    DIM_DIR = BASE_DIR / "csv"
+    FACT_DAILY_DIR = BASE_DIR / "csv" / "daily" / ds_key
+
+    print(f"Dim output dir   : {DIM_DIR}")
+    print(f"Fact output dir  : {FACT_DAILY_DIR}")
+  
     # 1. Dates
     dim_date, date_rows, date_keys, month_first_keys = make_dim_date()
 
@@ -496,22 +512,22 @@ def main():
     )
 
     # 4. Save all to CSV
-    save_csv(dim_date, "dimdate")
-    save_csv(dim_region, "dimregion")
-    save_csv(dim_customer, "dimcustomer")
-    save_csv(dim_product, "dimproduct")
-    save_csv(dim_warehouse, "dimwarehouse")
-    save_csv(dim_salesrep, "dimsalesrep")
-    save_csv(dim_glaccount, "dimglaccount")
+    save_csv(dim_date, "dimdate", DIM_DIR)
+    save_csv(dim_region, "dimregion", DIM_DIR)
+    save_csv(dim_customer, "dimcustomer", DIM_DIR)
+    save_csv(dim_product, "dimproduct", DIM_DIR)
+    save_csv(dim_warehouse, "dimwarehouse", DIM_DIR)
+    save_csv(dim_salesrep, "dimsalesrep", DIM_DIR)
+    save_csv(dim_glaccount, "dimglaccount", DIM_DIR)
 
-    save_csv(fact_sales, "factsales")
-    save_csv(fact_sales_target, "factsalestarget")
-    save_csv(fact_orders, "factorders")
-    save_csv(fact_inventory, "factinventory")
-    save_csv(fact_production, "factproduction")
-    save_csv(fact_pl, "factfinancepl")
-    save_csv(fact_bs, "factfinancebs")
-    save_csv(fact_cf, "factfinancecf")
+    save_csv(fact_sales, "factsales", FACT_DAILY_DIR)
+    save_csv(fact_sales_target, "factsalestarget", FACT_DAILY_DIR)
+    save_csv(fact_orders, "factorders", FACT_DAILY_DIR)
+    save_csv(fact_inventory, "factinventory", FACT_DAILY_DIR)
+    save_csv(fact_production, "factproduction", FACT_DAILY_DIR)
+    save_csv(fact_pl, "factfinancepl", FACT_DAILY_DIR)
+    save_csv(fact_bs, "factfinancebs", FACT_DAILY_DIR)
+    save_csv(fact_cf, "factfinancecf", FACT_DAILY_DIR)
 
     print("✅ CSV mock data generation completed.")
 
