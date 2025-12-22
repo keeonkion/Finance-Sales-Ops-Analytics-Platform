@@ -1,0 +1,140 @@
+version: 2
+
+models:
+  - name: finance_pl_by_period
+    description: "Finance mart: P&L summary by month and region (Revenue, COGS, Opex, gross/operating profit and margins)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - period_month
+            - region_id
+            - city_name
+    columns:
+      - name: period_month
+        description: "Month period (first day of month)."
+        tests: [not_null]
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+      - name: month_name
+        description: "Month name."
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: revenue_amount
+        description: "Revenue amount."
+      - name: cogs_amount
+        description: "COGS amount (usually negative)."
+      - name: opex_amount
+        description: "Opex amount (usually negative)."
+      - name: gross_profit_amount
+        description: "Gross profit = revenue + cogs."
+      - name: gross_margin_pct
+        description: "Gross margin = gross_profit / revenue."
+      - name: operating_profit_amount
+        description: "Operating profit = revenue + cogs + opex."
+      - name: operating_margin_pct
+        description: "Operating margin = operating_profit / revenue."
+
+  - name: finance_margin_summary
+    description: "Finance mart: yearly margin summary by region (gross profit and net profit)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - region_id
+            - city_name
+    columns:
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: revenue_amount
+        description: "Revenue amount."
+      - name: cogs_amount
+        description: "COGS amount (usually negative)."
+      - name: opex_amount
+        description: "Opex amount (usually negative)."
+      - name: gross_profit_amount
+        description: "Gross profit = revenue + cogs."
+      - name: gross_margin_pct
+        description: "Gross margin = gross_profit / revenue."
+      - name: net_profit_amount
+        description: "Net profit = revenue + cogs + opex."
+      - name: net_margin_pct
+        description: "Net margin = net_profit / revenue."
+
+  - name: finance_cost_breakdown
+    description: "Finance mart: cost breakdown (COGS & Opex) by month/region and subcategory, with % of revenue."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - period_month
+            - region_id
+            - city_name
+            - cost_category
+            - cost_subcategory
+    columns:
+      - name: period_month
+        description: "Month period (first day of month)."
+        tests: [not_null]
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+      - name: month_name
+        description: "Month name."
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: cost_category
+        description: "Cost category: Cogs or Opex."
+        tests: [not_null]
+      - name: cost_subcategory
+        description: "Cost subcategory (depends on GL design)."
+      - name: cost_amount
+        description: "Cost amount (usually negative)."
+      - name: revenue_amount
+        description: "Revenue amount for the same period & region."
+      - name: cost_pct_of_revenue
+        description: "Cost % of revenue = cost_amount / revenue_amount."

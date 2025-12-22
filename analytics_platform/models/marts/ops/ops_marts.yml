@@ -1,0 +1,146 @@
+version: 2
+
+models:
+  - name: inventory_stock_age
+    description: "Ops mart: ending on-hand and inventory value by month/warehouse/product, with weighted avg stock age days."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - period_month
+            - warehouse_id
+            - product_id
+    columns:
+      - name: period_month
+        description: "Month period (first day of month)."
+        tests: [not_null]
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+
+      - name: warehouse_id
+        description: "Warehouse id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_warehouse')
+              field: warehouse_id
+      - name: warehouse_name
+        description: "Warehouse name."
+
+      - name: product_id
+        description: "Product id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_product')
+              field: product_id
+
+      - name: ending_on_hand_qty
+        description: "Ending on-hand quantity (sum of closing_qty)."
+      - name: ending_inventory_value
+        description: "Ending inventory value (sum)."
+      - name: avg_stock_age_days
+        description: "Weighted average stock age days (qty-weighted)."
+
+  - name: inventory_turnover
+    description: "Ops mart: inventory turnover by month and region, using avg inventory value and absolute COGS."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - period_month
+            - country_name
+            - region_name
+    columns:
+      - name: period_month
+        description: "Month period (first day of month)."
+        tests: [not_null]
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+
+      - name: avg_inventory_value
+        description: "Average inventory value for the month."
+      - name: cogs_amount
+        description: "Absolute COGS amount for the month."
+      - name: inventory_turnover_ratio
+        description: "Turnover ratio = abs(cogs) / avg_inventory_value."
+      - name: days_on_hand_approx
+        description: "Approx days on hand = 30 / turnover ratio."
+
+  - name: ops_fulfillment_rate
+    description: "Ops mart: fulfillment KPIs (on-time, in-full, OTIF, ship fill, cancel) by month/warehouse/region."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - period_month
+            - region_id
+            - warehouse_code
+    columns:
+      - name: period_month
+        description: "Month period (first day of month)."
+        tests: [not_null]
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_code
+        description: "Country code."
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+
+      - name: warehouse_code
+        description: "Warehouse code."
+        tests: [not_null]
+      - name: warehouse_name
+        description: "Warehouse name."
+
+      - name: order_cnt
+        description: "Distinct order count."
+      - name: order_line_cnt
+        description: "Order line count."
+
+      - name: ordered_qty
+        description: "Total ordered quantity."
+      - name: shipped_qty
+        description: "Total shipped quantity."
+      - name: cancelled_qty
+        description: "Total cancelled quantity."
+
+      - name: on_time_rate
+        description: "On-time rate (line-based)."
+      - name: in_full_rate
+        description: "In-full rate (line-based)."
+      - name: otif_rate
+        description: "OTIF rate (line-based)."
+      - name: ship_fill_rate
+        description: "Ship fill rate = shipped_qty / ordered_qty."
+      - name: cancel_rate
+        description: "Cancel rate = cancelled_qty / ordered_qty."

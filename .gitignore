@@ -2,5 +2,8 @@
 logs/
 *.log
 
-# generated mock data
+# local backup
+*.bak
+
+# mock data daily output
 database/mock_data/csv/daily/

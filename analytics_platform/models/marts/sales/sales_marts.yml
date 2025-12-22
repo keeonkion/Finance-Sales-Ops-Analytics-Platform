@@ -1,0 +1,187 @@
+version: 2
+
+models:
+  - name: sales_daily_revenue
+    description: "Sales mart: daily order volume & service performance by date and region (revenue fields intentionally excluded because product table has no unit price)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date_id
+            - region_id
+    columns:
+      - name: date_id
+        description: "Date key (YYYYMMDD)."
+        tests: [not_null]
+      - name: full_date
+        description: "Full date (date type)."
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+      - name: month_name
+        description: "Month name."
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_code
+        description: "Country code."
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: order_count
+        description: "Distinct orders count."
+      - name: ordered_qty
+        description: "Total ordered quantity."
+      - name: shipped_qty
+        description: "Total shipped quantity."
+      - name: cancelled_qty
+        description: "Total cancelled quantity."
+
+      - name: on_time_orders
+        description: "Count of on-time orders (line-level logic aggregated)."
+      - name: in_full_orders
+        description: "Count of in-full orders (line-level logic aggregated)."
+      - name: otif_orders
+        description: "Count of OTIF orders."
+      - name: on_time_rate
+        description: "On-time rate = on_time_orders / order_count."
+      - name: in_full_rate
+        description: "In-full rate = in_full_orders / order_count."
+      - name: otif_rate
+        description: "OTIF rate = otif_orders / order_count."
+
+  - name: sales_customer_kpis
+    description: "Sales mart: customer KPIs by year/month and customer home region (revenue fields intentionally excluded because product table has no unit price)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - customer_id
+            - year
+            - month
+    columns:
+      - name: customer_id
+        description: "Customer id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customer')
+              field: customer_id
+      - name: customer_code
+        description: "Customer code."
+      - name: customer_name
+        description: "Customer name."
+      - name: is_active
+        description: "Customer active flag."
+
+      - name: region_id
+        description: "Customer region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_code
+        description: "Country code."
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+      - name: month_name
+        description: "Month name."
+
+      - name: order_count
+        description: "Distinct orders count."
+      - name: shipped_qty
+        description: "Total shipped quantity."
+      - name: cancelled_qty
+        description: "Total cancelled quantity."
+
+      - name: on_time_orders
+        description: "Count of on-time orders."
+      - name: in_full_orders
+        description: "Count of in-full orders."
+      - name: otif_orders
+        description: "Count of OTIF orders."
+      - name: otif_rate
+        description: "OTIF rate = otif_orders / order_count."
+      - name: cancel_rate
+        description: "Cancel rate (by qty) = cancelled_qty / ordered_qty."
+
+  - name: sales_product_performance
+    description: "Sales mart: product performance vs target by month and region (actual revenue excluded because no product unit price)."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - region_id
+            - product_id
+    columns:
+      - name: year
+        description: "Calendar year."
+        tests: [not_null]
+      - name: month
+        description: "Calendar month (1-12)."
+        tests: [not_null]
+      - name: month_name
+        description: "Month name."
+
+      - name: region_id
+        description: "Region id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_region')
+              field: region_id
+      - name: country_code
+        description: "Country code."
+      - name: country_name
+        description: "Country name."
+      - name: region_name
+        description: "Region name."
+      - name: city_name
+        description: "City name."
+
+      - name: product_id
+        description: "Product id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_product')
+              field: product_id
+      - name: product_code
+        description: "Product code."
+      - name: product_name
+        description: "Product name."
+      - name: category
+        description: "Product category."
+      - name: subcategory
+        description: "Product subcategory."
+
+      - name: shipped_qty
+        description: "Actual shipped quantity."
+      - name: target_revenue
+        description: "Target revenue (from sales target table)."
+      - name: target_quantity
+        description: "Target quantity (from sales target table)."
+      - name: quantity_attainment_pct
+        description: "Quantity attainment = shipped_qty / target_quantity."
