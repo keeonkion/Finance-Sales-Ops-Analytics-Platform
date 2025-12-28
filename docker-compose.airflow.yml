@@ -1,0 +1,49 @@
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    ports:
+      - "8080:8080"
+    container_name: airflow
+    environment:
+      # Airflow 基础
+      AIRFLOW_CORE_EXECUTOR: SequentialExecutor
+      AIRFLOW_CORE_LOAD_EXAMPLES: "false"
+      AIRFLOW_DATABASE_SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      AIRFLOW_CORE_FERNET_KEY: "Ur4w8OdBm/NEG4xGNNx9n3CnxVv9KRK5HZJ4YNb7vPY="
+      AIRFLOW__WEBSERVER__WEB_SERVER_HOST: 0.0.0.0
+      AIRFLOW__WEBSERVER__WEB_SERVER_PORT: 8080
+      AIRFLOW_WEBSERVER_SECRET_KEY: "anothersecret"
+      
+
+      # ===============================
+      # Neon Postgres（Pooler，真实环境）
+      # ===============================
+      PGHOST: ep-empty-sky-a9a996ke-pooler.gwc.azure.neon.tech
+      PGPORT: 5432
+      PGDATABASE: neondb
+      PGUSER: neondb_owner
+      PGPASSWORD: ${NEON_PASSWORD}
+      PGSSLMODE: require
+      NEON_PASSWORD: ${NEON_PASSWORD}
+
+      # dbt 关键（告诉 dbt profiles 在哪）
+      DBT_PROFILES_DIR: /opt/airflow/analytics_platform
+
+      # dbt adapter
+      _PIP_ADDITIONAL_REQUIREMENTS: "dbt-core==1.8.2 dbt-postgres==1.8.2"
+
+    volumes:
+      - ./:/opt/airflow
+      - ./airflow/dags:/opt/airflow/dags
+      - ./database:/opt/airflow/database
+      - ./analytics_platform:/opt/airflow/analytics_platform
+
+    command: >
+      bash -lc "
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true &&
+      airflow webserver --port 8080 &
+      airflow scheduler
+      "

@@ -16,11 +16,11 @@ models:
       - name: customer_name
         description: "Full display name of the customer"
 
-      - name: segment
+      - name: customer_segment
         description: "Customer channel category, e.g. Retail, Distributor, Online"
         tests:
           - accepted_values:
-              values: ['Retail', 'Distributor', 'Online']
+              values: ['Gold', 'Silver', 'Bronze']
 
       - name: region
         description: "Geographical region of the customer"
@@ -31,13 +31,13 @@ models:
       - name: tier
         description: "Customer tier used for priority classification"
 
-      - name: model_type
+      - name: customer_type
         description: "Customer type, B2B vs B2C"
         tests:
           - accepted_values:
-              values: ['B2B', 'B2C']
+              values: ['Retail', 'Distributor', 'Online']
 
-      - name: active
+      - name: is_active
         description: "Whether the customer is active"
         tests:
           - not_null

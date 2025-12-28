@@ -7,3 +7,17 @@ logs/
 
 # mock data daily output
 database/mock_data/csv/daily/
+
+# Secrets
+.env
+
+# Airflow runtime
+airflow/
+airflow.db
+airflow.cfg
+airflow-webserver.pid
+logs/
+
+# Python
+__pycache__/
+*.pyc

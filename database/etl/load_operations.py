@@ -16,7 +16,13 @@ from pathlib import Path
 
 import psycopg2
 
-CONN_STR = os.environ["NEON_CONN_STR"]
+host = os.environ["PGHOST"]
+port = os.environ.get("PGPORT", "5432")
+db   = os.environ["PGDATABASE"]
+user = os.environ["PGUSER"]
+pwd  = os.environ["PGPASSWORD"]
+CONN_STR = f"postgresql://{user}:{pwd}@{host}:{port}/{db}?sslmode=require"
+#CONN_STR = os.environ["NEON_CONN_STR"]
 SCHEMA = "analytics"
 
 BASE_DIR = Path(__file__).resolve().parents[1]

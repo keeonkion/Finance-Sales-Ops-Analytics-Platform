@@ -18,7 +18,14 @@ from datetime import datetime
 import psycopg2
 
 import os
-CONN_STR = os.environ["NEON_CONN_STR"]
+host = os.environ["PGHOST"]
+port = os.environ.get("PGPORT", "5432")
+db   = os.environ["PGDATABASE"]
+user = os.environ["PGUSER"]
+pwd  = os.environ["PGPASSWORD"]
+
+CONN_STR = f"postgresql://{user}:{pwd}@{host}:{port}/{db}?sslmode=require"
+#CONN_STR = os.environ["NEON_CONN_STR"]
 
 SCHEMA = "analytics"
 
