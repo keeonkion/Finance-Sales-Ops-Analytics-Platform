@@ -16,8 +16,18 @@ airflow/
 airflow.db
 airflow.cfg
 airflow-webserver.pid
-logs/
-
+git
 # Python
 __pycache__/
 *.pyc
+
+# ML prediction outputs
+analytics_platform/*pred*.csv
+analytics_platform/batch_pred_*.csv
+
+# User / local config
+analytics_platform/.user.yml
+
+# MLflow / runtime
+mlruns/
+logs/

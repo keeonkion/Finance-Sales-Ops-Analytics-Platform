@@ -28,6 +28,8 @@ services:
       PGSSLMODE: require
       NEON_PASSWORD: ${NEON_PASSWORD}
 
+      MLFLOW_TRACKING_URI: file:/opt/airflow/analytics_platform/mlruns
+
       # dbt 关键（告诉 dbt profiles 在哪）
       DBT_PROFILES_DIR: /opt/airflow/analytics_platform
 

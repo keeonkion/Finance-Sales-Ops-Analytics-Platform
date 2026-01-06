@@ -1,2 +1,6 @@
-psycopg2-binary
+scikit-learn
 pandas
+numpy
+mlflow
+sqlalchemy
+psycopg2-binary

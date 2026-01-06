@@ -1,0 +1,23 @@
+[
+  "year",
+  "month",
+  "region_id",
+  "revenue_amount",
+  "cogs_amount",
+  "opex_amount",
+  "gross_profit_amount",
+  "gross_margin_pct",
+  "operating_profit_amount",
+  "operating_margin_pct",
+  "order_count",
+  "shipped_qty",
+  "cancelled_qty",
+  "otif_rate",
+  "avg_inventory_value",
+  "inventory_turnover_ratio",
+  "op_profit_lag_1",
+  "op_margin_lag_1",
+  "gross_margin_lag_1",
+  "op_profit_roll_mean_3",
+  "y_operating_margin_pct_1m"
+]

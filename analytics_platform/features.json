@@ -1,0 +1,22 @@
+[
+  "year",
+  "month",
+  "region_id",
+  "order_count",
+  "ordered_qty",
+  "shipped_qty",
+  "cancelled_qty",
+  "on_time_rate",
+  "in_full_rate",
+  "otif_rate",
+  "shipped_qty_lag_1",
+  "shipped_qty_lag_3",
+  "shipped_qty_lag_12",
+  "order_count_lag_1",
+  "order_count_lag_12",
+  "shipped_qty_roll_mean_3",
+  "order_count_roll_mean_3",
+  "shipped_qty_mom",
+  "shipped_qty_yoy",
+  "y_order_count_1m"
+]

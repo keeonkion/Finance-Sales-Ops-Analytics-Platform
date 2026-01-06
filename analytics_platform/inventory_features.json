@@ -1,0 +1,12 @@
+[
+  "year",
+  "month",
+  "avg_inventory_value",
+  "cogs_amount",
+  "inventory_turnover_ratio",
+  "avg_inv_lag_1",
+  "avg_inv_lag_3",
+  "avg_inv_lag_12",
+  "turnover_lag_1",
+  "avg_inv_roll_mean_3"
+]

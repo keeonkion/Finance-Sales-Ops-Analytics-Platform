@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: ml_train_sales_monthly
+    columns:
+      - name: ds
+        tests: [not_null]
+      - name: region_id
+        tests: [not_null]
+      - name: y_shipped_qty_1m
+        tests: [not_null]
+
+  - name: ml_train_inventory_monthly
+    columns:
+      - name: ds
+        tests: [not_null]
+      - name: country_name
+        tests: [not_null]
+      - name: region_name
+        tests: [not_null]
+      - name: y_avg_inventory_value_1m
+        tests: [not_null]
+
+  - name: ml_train_profit_monthly
+    columns:
+      - name: ds
+        tests: [not_null]
+      - name: region_id
+        tests: [not_null]
+      - name: y_operating_profit_1m
+        tests: [not_null]
